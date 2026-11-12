@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ELSD English Language Tutor</title>
+    <style>
+        /* CSS Styling - Clean, modern, calming color palette */
+        :root {
+            --primary-blue: #3182ce;
+            --light-blue: #ebf8ff;
+            --background-color: #f7fafc;
+            --chat-bg: #ffffff;
+            --text-dark: #2d3748;
+            --text-light: #718096;
+            --bot-bubble: #e2e8f0;
+            --user-bubble: #3182ce;
+            --online-green: #48bb78;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 450px;
+            height: 90vh;
+            max-height: 800px;
+            background-color: var(--chat-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header Styling */
+        .chat-header {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            margin-right: 12px;
+        }
+
+        .header-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bot-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .status {
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            margin-top: 2px;
+            opacity: 0.9;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--online-green);
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        /* Chat Area Styling */
+        .chat-box {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            background-color: var(--chat-bg);
+        }
+
+        .message-row {
+            display: flex;
+            width: 100%;
+        }
+
+        .message-row.bot {
+            justify-content: flex-start;
+        }
+
+        .message-row.user {
+            justify-content: flex-end;
+        }
+
+        .message-bubble {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .bot .message-bubble {
+            background-color: var(--bot-bubble);
+            color: var(--text-dark);
+            border-bottom-left-radius: 4px;
+        }
+
+        .user .message-bubble {
+            background-color: var(--user-bubble);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Quick Start Buttons */
+        .quick-start-container {
+            padding: 10px 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            background-color: var(--light-blue);
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .quick-btn {
+            background-color: white;
+            color: var(--primary-blue);
+            border: 1px solid var(--primary-blue);
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .quick-btn:hover {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+
+        /* Input Area Styling */
+        .input-area {
+            display: flex;
+            padding: 15px;
+            background-color: var(--chat-bg);
+            border-top: 1px solid #e2e8f0;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex-grow: 1;
+            padding: 12px 16px;
+            border: 1px solid #cbd5e0;
+            border-radius: 24px;
+            outline: none;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input:focus {
+            border-color: var(--primary-blue);
+        }
+
+        .send-btn {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        .send-btn:hover {
+            background-color: #2c5282;
+        }
+
+        .send-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+            margin-left: 2px;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            font-style: italic;
+            color: var(--text-light);
+            font-size: 0.85rem;
+            margin-left: 10px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <!-- Header -->
+        <div class="chat-header">
+            <div class="avatar">🎓</div>
+            <div class="header-info">
+                <div class="bot-name">ELSD English language tutor</div>
+                <div class="status">
+                    <div class="status-dot"></div> Online
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-box" id="chatBox">
+            <!-- Messages will be injected here via JavaScript -->
+        </div>
+
+        <!-- Quick Start Buttons -->
+        <div class="quick-start-container">
+            <button class="quick-btn" onclick="sendQuickMessage('Grammar Help')">Grammar Help</button>
+            <button class="quick-btn" onclick="sendQuickMessage('Learn Vocabulary')">Learn Vocabulary</button>
+            <button class="quick-btn" onclick="sendQuickMessage('Reading Practice')">Reading Practice</button>
+            <button class="quick-btn" onclick="sendQuickMessage('Listening Exercise')">Listening Exercise</button>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <input type="text" id="userInput" class="chat-input" placeholder="Type your message here..." autocomplete="off">
+            <button id="sendBtn" class="send-btn" aria-label="Send message">
+                <svg viewBox="0 0 24 24">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // DOM Elements
+        const chatBox = document.getElementById('chatBox');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+
+        // Initialization: Send welcome message on load
+        window.onload = () => {
+            const welcomeText = "Hello! I am ELSD, your English language tutor. I can help you with Grammar, Vocabulary, Reading, and Listening. How can I help you practice today?";
+            addMessageToChat('bot', welcomeText);
+        };
+
+        // Event Listeners for sending messages
+        sendBtn.addEventListener('click', handleUserSubmit);
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleUserSubmit();
+            }
+        });
+
+        // Handle Quick Start button clicks
+        function sendQuickMessage(text) {
+            userInput.value = text;
+            handleUserSubmit();
+        }
+
+        // Handle standard user text submission
+        function handleUserSubmit() {
+            const message = userInput.value.trim();
+            if (message === '') return;
+
+            // 1. Add user's message to chat
+            addMessageToChat('user', message);
+            userInput.value = '';
+
+            // 2. Trigger the bot's response logic
+            getBotResponse(message);
+        }
+
+        // Append a message bubble to the chat window
+        function addMessageToChat(sender, text) {
+            const rowDiv = document.createElement('div');
+            rowDiv.classList.add('message-row', sender);
+
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.classList.add('message-bubble');
+            bubbleDiv.innerText = text;
+
+            rowDiv.appendChild(bubbleDiv);
+            chatBox.appendChild(rowDiv);
+
+            // Auto-scroll to the bottom
+            scrollToBottom();
+        }
+
+        // Mock function to simulate AI generating a response
+        function getBotResponse(userMessage) {
+            // Display typing indicator
+            const typingId = 'typing-' + Date.now();
+            const typingRow = document.createElement('div');
+            typingRow.classList.add('message-row', 'bot');
+            typingRow.id = typingId;
+            
+            const typingText = document.createElement('div');
+            typingText.classList.add('typing-indicator');
+            typingText.innerText = 'ELSD is typing...';
+            
+            typingRow.appendChild(typingText);
+            chatBox.appendChild(typingRow);
+            scrollToBottom();
+
+            // Simulate network/API delay of 1.5 seconds
+            setTimeout(() => {
+                // Remove typing indicator
+                const typingElement = document.getElementById(typingId);
+                if (typingElement) typingElement.remove();
+
+                // ---------------------------------------------------------
+                // AI API INTEGRATION POINT
+                // ---------------------------------------------------------
+                // This is exactly where you will eventually connect a real AI.
+                // You would replace the placeholder logic below with an async
+                // fetch() call to your backend server, which will talk to the
+                // Gemini API or OpenAI API, and return the real response.
+                // 
+                // Example of future code:
+                // const response = await fetch('http://your-backend/api/chat', { ... });
+                // const data = await response.json();
+                // addMessageToChat('bot', data.reply);
+                // ---------------------------------------------------------
+
+                // Placeholder logic based on user input
+                let placeholderReply = "That's a great question! Let's practice that together.";
+                const lowerMsg = userMessage.toLowerCase();
+
+                if (lowerMsg.includes('grammar')) {
+                    placeholderReply = "I'd love to help with grammar. Which topic are you studying? (e.g., Past tense, prepositions, conditionals)";
+                } else if (lowerMsg.includes('vocabulary')) {
+                    placeholderReply = "Expanding vocabulary is wonderful! Do you want to learn words for a specific situation, like traveling or business?";
+                } else if (lowerMsg.includes('reading')) {
+                    placeholderReply = "Reading practice is essential. I can provide a short paragraph for you to read, and then we can discuss it. Ready?";
+                } else if (lowerMsg.includes('listening')) {
+                    placeholderReply = "For listening practice, I can write dialogue for you to read out loud, or we can focus on conversational phrasing.";
+                }
+
+                // Append the final bot response
+                addMessageToChat('bot', placeholderReply);
+
+            }, 1500);
+        }
+
+        function scrollToBottom() {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
