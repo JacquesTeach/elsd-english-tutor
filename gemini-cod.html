@@ -341,27 +341,52 @@
             chatBox.appendChild(typingRow);
             scrollToBottom();
 
-            // Simulate network/API delay of 1.5 seconds
-            setTimeout(() => {
-                // Remove typing indicator
-                const typingElement = document.getElementById(typingId);
-                if (typingElement) typingElement.remove();
+async function getBotResponse(userMessage) {
+    const typingId = `typing-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const typingRow = document.createElement('div');
+    typingRow.classList.add('message-row', 'bot');
+    typingRow.id = typingId;
 
-                // ---------------------------------------------------------
-                // AI API INTEGRATION POINT
-                // ---------------------------------------------------------
-                // This is exactly where you will eventually connect a real AI.
-                // You would replace the placeholder logic below with an async
-                // fetch() call to your backend server, which will talk to the
-                // Gemini API or OpenAI API, and return the real response.
-                // 
-                // Example of future code:
-                // const response = await fetch('http://your-backend/api/chat', { ... });
-                // const data = await response.json();
-                // addMessageToChat('bot', data.reply);
-                // ---------------------------------------------------------
+    const typingText = document.createElement('div');
+    typingText.classList.add('typing-indicator');
+    typingText.innerText = 'ELSD is typing...';
 
-                // Placeholder logic based on user input
+    typingRow.appendChild(typingText);
+    chatBox.appendChild(typingRow);
+    scrollToBottom();
+
+    try {
+        const response = await fetch('https://icy-field-085e.jacques-interlink.workers.dev/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: userMessage })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Request failed (${response.status})`);
+        }
+
+        const data = await response.json();
+        const reply = data.reply;
+
+        if (typeof reply !== 'string' || !reply.trim()) {
+            throw new Error('The AI service returned no reply.');
+        }
+
+        addMessageToChat('bot', reply);
+    } catch (error) {
+        console.error('AI request failed:', error);
+        addMessageToChat(
+            'bot',
+            'Sorry, I could not get a response right now. Please try again.'
+        );
+    } finally {
+        const typingElement = document.getElementById(typingId);
+        if (typingElement) typingElement.remove();
+    }
+}
                 let placeholderReply = "That's a great question! Let's practice that together.";
                 const lowerMsg = userMessage.toLowerCase();
 
