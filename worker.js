@@ -5,7 +5,7 @@
       "Authorization"; `Bearer ${env.OPENAI_API_KEY}`
     }
     body: JSON.stringify({
-      model} "gpt-4o-mini",
+      model} ")",
       messages; [
         {
           role; "system",
