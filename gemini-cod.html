@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3182ce">
     <title>ELSD English Language Tutor</title>
     <style>
         :root {
+            color-scheme: light;
             --primary-blue: #3182ce;
+            --primary-dark: #2c5282;
             --light-blue: #ebf8ff;
             --background-color: #f7fafc;
             --chat-bg: #ffffff;
@@ -15,365 +18,333 @@
             --bot-bubble: #e2e8f0;
             --user-bubble: #3182ce;
             --online-green: #48bb78;
+            --border: #cbd5e0;
         }
 
-        * {
-            box-sizing: border-box;
+        * { box-sizing: border-box; }
+
+        body {
             margin: 0;
-            padding: 0;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--background-color);
+            color: var(--text-dark);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        body {
-            background-color: var(--background-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            padding: 20px;
-        }
+        button, input { font: inherit; }
 
         .chat-container {
-            width: 100%;
-            max-width: 450px;
-            height: 90vh;
-            max-height: 800px;
-            background-color: var(--chat-bg);
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: min(100%, 520px);
+            height: min(850px, calc(100vh - 40px));
+            min-height: 420px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            background: var(--chat-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, .1);
         }
 
         .chat-header {
-            background-color: var(--primary-blue);
-            color: white;
-            padding: 16px 20px;
             display: flex;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            z-index: 10;
+            padding: 16px 20px;
+            color: white;
+            background: var(--primary-blue);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
         }
 
         .avatar {
-            width: 40px;
-            height: 40px;
-            background-color: white;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 20px;
+            width: 42px;
+            height: 42px;
             margin-right: 12px;
-        }
-
-        .header-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .bot-name {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        .status {
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            margin-top: 2px;
-            opacity: 0.9;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--online-green);
+            display: grid;
+            place-items: center;
+            flex: 0 0 auto;
             border-radius: 50%;
-            margin-right: 6px;
+            background: white;
+            font-size: 21px;
         }
+
+        .bot-name { font-size: 1.05rem; font-weight: 700; }
+        .status { display: flex; align-items: center; gap: 6px; margin-top: 3px; font-size: .8rem; opacity: .95; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--online-green); }
 
         .chat-box {
-            flex-grow: 1;
+            flex: 1;
+            min-height: 0;
             padding: 20px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            background-color: var(--chat-bg);
+            gap: 14px;
+            scroll-behavior: smooth;
         }
 
-        .message-row {
-            display: flex;
-            width: 100%;
-        }
-
-        .message-row.bot {
-            justify-content: flex-start;
-        }
-
-        .message-row.user {
-            justify-content: flex-end;
-        }
-
+        .message-row { display: flex; width: 100%; }
+        .message-row.bot { justify-content: flex-start; }
+        .message-row.user { justify-content: flex-end; }
         .message-bubble {
-            max-width: 75%;
+            max-width: 85%;
             padding: 12px 16px;
             border-radius: 16px;
-            font-size: 0.95rem;
-            line-height: 1.4;
-            word-wrap: break-word;
+            font-size: .95rem;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
             white-space: pre-wrap;
         }
-
-        .bot .message-bubble {
-            background-color: var(--bot-bubble);
-            color: var(--text-dark);
-            border-bottom-left-radius: 4px;
-        }
-
-        .user .message-bubble {
-            background-color: var(--user-bubble);
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
+        .bot .message-bubble { border-bottom-left-radius: 4px; background: var(--bot-bubble); }
+        .user .message-bubble { border-bottom-right-radius: 4px; color: white; background: var(--user-bubble); }
 
         .quick-start-container {
-            padding: 10px 15px;
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            background-color: var(--light-blue);
+            padding: 10px 15px;
             border-top: 1px solid #e2e8f0;
+            background: var(--light-blue);
         }
 
         .quick-btn {
-            background-color: white;
-            color: var(--primary-blue);
+            padding: 7px 12px;
             border: 1px solid var(--primary-blue);
             border-radius: 20px;
-            padding: 6px 12px;
-            font-size: 0.85rem;
+            color: var(--primary-blue);
+            background: white;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: background-color .2s, color .2s;
         }
-
-        .quick-btn:hover {
-            background-color: var(--primary-blue);
-            color: white;
-        }
+        .quick-btn:hover, .quick-btn:focus-visible { color: white; background: var(--primary-blue); }
+        button:focus-visible, input:focus-visible { outline: 3px solid #90cdf4; outline-offset: 2px; }
 
         .input-area {
             display: flex;
-            padding: 15px;
-            background-color: var(--chat-bg);
-            border-top: 1px solid #e2e8f0;
             gap: 10px;
+            padding: 14px 15px;
+            border-top: 1px solid #e2e8f0;
+            background: white;
         }
-
         .chat-input {
-            flex-grow: 1;
+            min-width: 0;
+            flex: 1;
             padding: 12px 16px;
-            border: 1px solid #cbd5e0;
+            border: 1px solid var(--border);
             border-radius: 24px;
-            outline: none;
-            font-size: 0.95rem;
-            transition: border-color 0.2s;
+            color: var(--text-dark);
+            font-size: .95rem;
         }
-
-        .chat-input:focus {
-            border-color: var(--primary-blue);
-        }
-
+        .chat-input:focus { border-color: var(--primary-blue); outline: 2px solid #bee3f8; }
         .send-btn {
-            background-color: var(--primary-blue);
-            color: white;
-            border: none;
+            width: 46px;
+            height: 46px;
+            flex: 0 0 auto;
+            display: grid;
+            place-items: center;
+            border: 0;
             border-radius: 50%;
-            width: 45px;
-            height: 45px;
+            color: white;
+            background: var(--primary-blue);
             cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: background-color 0.2s;
         }
+        .send-btn:hover:not(:disabled) { background: var(--primary-dark); }
+        .send-btn:disabled { opacity: .6; cursor: wait; }
+        .send-btn svg { width: 20px; height: 20px; fill: currentColor; }
+        .typing-indicator { padding: 4px 10px; color: var(--text-light); font-size: .85rem; font-style: italic; animation: pulse 1.3s infinite; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+        @keyframes pulse { 50% { opacity: .45; } }
 
-        .send-btn:hover {
-            background-color: #2c5282;
+        @media (max-width: 520px) {
+            body { padding: 0; }
+            .chat-container { width: 100%; height: 100vh; height: 100dvh; min-height: 0; border-radius: 0; }
+            .chat-box { padding: 16px; }
+            .message-bubble { max-width: 90%; }
         }
-
-        .send-btn svg {
-            width: 20px;
-            height: 20px;
-            fill: currentColor;
-            margin-left: 2px;
-        }
-
-        .typing-indicator {
-            font-style: italic;
-            color: var(--text-light);
-            font-size: 0.85rem;
-            margin-left: 10px;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 0.5; }
-            50% { opacity: 1; }
-            100% { opacity: 0.5; }
-        }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; } }
     </style>
 </head>
 <body>
-
-    <div class="chat-container">
-        <div class="chat-header">
-            <div class="avatar">🎓</div>
-            <div class="header-info">
-                <div class="bot-name">ELSD English language tutor</div>
-                <div class="status">
-                    <div class="status-dot"></div> Online
-                </div>
+    <main class="chat-container" aria-label="ELSD English tutor chat">
+        <header class="chat-header">
+            <div class="avatar" aria-hidden="true">🎓</div>
+            <div>
+                <div class="bot-name">ELSD English Language Tutor</div>
+                <div class="status"><span class="status-dot" aria-hidden="true"></span><span>Ready to practice</span></div>
             </div>
-        </div>
+        </header>
 
-        <div class="chat-box" id="chatBox"></div>
+        <section class="chat-box" id="chatBox" aria-label="Conversation" aria-live="polite" aria-relevant="additions"></section>
 
-        <div class="quick-start-container">
-            <button class="quick-btn" type="button" onclick="sendQuickMessage('Grammar Help')">Grammar Help</button>
-            <button class="quick-btn" type="button" onclick="sendQuickMessage('Learn Vocabulary')">Learn Vocabulary</button>
-            <button class="quick-btn" type="button" onclick="sendQuickMessage('Reading Practice')">Reading Practice</button>
-            <button class="quick-btn" type="button" onclick="sendQuickMessage('Listening Exercise')">Listening Exercise</button>
-        </div>
+        <nav class="quick-start-container" aria-label="Practice activities">
+            <button class="quick-btn" type="button" data-prompt="Grammar help">Grammar Help</button>
+            <button class="quick-btn" type="button" data-prompt="Learn vocabulary">Learn Vocabulary</button>
+            <button class="quick-btn" type="button" data-prompt="Reading practice">Reading Practice</button>
+            <button class="quick-btn" type="button" data-prompt="Listening exercise">Listening Exercise</button>
+        </nav>
 
-        <div class="input-area">
-            <input type="text" id="userInput" class="chat-input" placeholder="Type your message here..." autocomplete="off">
-            <button id="sendBtn" class="send-btn" type="button" aria-label="Send message">
-                <svg viewBox="0 0 24 24">
-                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
-                </svg>
+        <form class="input-area" id="chatForm">
+            <label class="sr-only" for="userInput">Your message</label>
+            <input type="text" id="userInput" class="chat-input" placeholder="Type your message here..." autocomplete="off" maxlength="500" required>
+            <button id="sendBtn" class="send-btn" type="submit" aria-label="Send message">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
             </button>
-        </div>
-    </div>
+        </form>
+    </main>
 
     <script>
+        'use strict';
+
         const chatBox = document.getElementById('chatBox');
+        const chatForm = document.getElementById('chatForm');
         const userInput = document.getElementById('userInput');
         const sendBtn = document.getElementById('sendBtn');
+        let currentActivity = null;
 
-        window.onload = () => {
-            const welcomeText = "Hello! I am ELSD, your English language tutor. I can help you with Grammar, Vocabulary, Reading, and Listening. How can I help you practice today?";
-            addMessageToChat('bot', welcomeText);
-            userInput.focus();
+        const vocabulary = {
+            curious: ['wanting to learn or know more about something', 'I was curious about how the story would end.'],
+            generous: ['willing to give or share more than is expected', 'It was generous of Maya to share her lunch.'],
+            improve: ['to become or make something better', 'Reading every day can improve your vocabulary.'],
+            reliable: ['able to be trusted or depended on', 'The reliable bus usually arrives on time.'],
+            exhausted: ['very tired', 'After the long walk, we were exhausted.'],
+            ancient: ['very old; from a long time ago', 'They visited an ancient castle.'],
+            confident: ['feeling sure about your abilities or ideas', 'Practicing helped him feel confident speaking English.'],
+            opportunity: ['a good chance to do or achieve something', 'The class gave me an opportunity to practice.']
         };
 
-        sendBtn.addEventListener('click', handleUserSubmit);
-
-        userInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                handleUserSubmit();
-            }
-        });
-
-        function sendQuickMessage(text) {
-            userInput.value = text;
-            handleUserSubmit();
-        }
-
-        function handleUserSubmit() {
-            const message = userInput.value.trim();
-            if (message === '') return;
-
-            addMessageToChat('user', message);
-            userInput.value = '';
-            userInput.focus();
-
-            getBotResponse(message);
-        }
-
-        function addMessageToChat(sender, text) {
-            const rowDiv = document.createElement('div');
-            rowDiv.classList.add('message-row', sender);
-
-            const bubbleDiv = document.createElement('div');
-            bubbleDiv.classList.add('message-bubble');
-            bubbleDiv.textContent = text;
-
-            rowDiv.appendChild(bubbleDiv);
-            chatBox.appendChild(rowDiv);
-
-            scrollToBottom();
-        }
-
-        async function getBotResponse(userMessage) {
-            const typingId = `typing-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-            const typingRow = document.createElement('div');
-            typingRow.classList.add('message-row', 'bot');
-            typingRow.id = typingId;
-
-            const typingText = document.createElement('div');
-            typingText.classList.add('typing-indicator');
-            typingText.textContent = 'ELSD is typing...';
-
-            typingRow.appendChild(typingText);
-            chatBox.appendChild(typingRow);
-            scrollToBottom();
-
-            try {
-  async fetch(request, env) {
-    const response = await fetch("https://jacquesteach.github.io/elsd-english-tutor/gemini-cod.html");
-    const html = await response.text();
-    return new Response(html, {
-      headers: { "Content-Type": "text/html; charset=utf-8" }
-    });
-  }
-};
-
-                if (!response.ok) {
-                    throw new Error(`Request failed with status ${response.status}`);
-                }
-
-                const rawText = await response.text();
-                let reply = '';
-
-                if (rawText) {
-                    try {
-                        const parsed = JSON.parse(rawText);
-
-                        if (parsed && typeof parsed.reply === 'string' && parsed.reply.trim()) {
-                            reply = parsed.reply;
-                        } else if (typeof parsed === 'string' && parsed.trim()) {
-                            reply = parsed;
-                        } else if (parsed && parsed.message && typeof parsed.message === 'string') {
-                            reply = parsed.message;
-                        } else {
-                            reply = rawText;
-                        }
-                    } catch {
-                        reply = rawText;
-                    }
-                }
-
-                if (!reply || !reply.trim()) {
-                    reply = "Sorry, I couldn't generate a response right now. Please try again.";
-                }
-
-                addMessageToChat('bot', reply);
-
-            } catch (error) {
-                console.error('AI request failed:', error);
-                addMessageToChat('bot', 'Sorry, I could not get a response right now. Please try again.');
-            } finally {
-                const typingElement = document.getElementById(typingId);
-                if (typingElement) typingElement.remove();
-            }
-        }
-
-        function scrollToBottom() {
+        function addMessage(sender, text) {
+            const row = document.createElement('div');
+            row.className = `message-row ${sender}`;
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble';
+            bubble.textContent = text;
+            row.appendChild(bubble);
+            chatBox.appendChild(row);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
+
+        function showTyping() {
+            const row = document.createElement('div');
+            row.className = 'message-row bot';
+            row.id = 'typingIndicator';
+            const label = document.createElement('div');
+            label.className = 'typing-indicator';
+            label.textContent = 'ELSD is thinking…';
+            row.appendChild(label);
+            chatBox.appendChild(row);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function answerActivity(message) {
+            const activity = currentActivity;
+            currentActivity = null;
+            const answer = message.toLowerCase().replace(/[^a-z\s']/g, '').trim();
+            const accepted = activity.answers.some(item => answer.includes(item));
+            if (accepted) {
+                return `That's right! ${activity.explanation}\n\nWould you like another exercise? Choose a practice button or ask me a question.`;
+            }
+            return `Good try! The answer is “${activity.displayAnswer}.” ${activity.explanation}\n\nWould you like another exercise? Choose a practice button or ask me a question.`;
+        }
+
+        function startGrammar() {
+            currentActivity = {
+                answers: ['went'], displayAnswer: 'went',
+                explanation: 'Use the past-tense verb “went” for an action that happened yesterday. The correct sentence is: “Yesterday, I went to the library.”'
+            };
+            return 'Grammar practice: Choose the correct word.\n“Yesterday, I ___ to the library.”\n\nReply with the missing word.';
+        }
+
+        function startReading() {
+            currentActivity = {
+                answers: ['seed', 'a seed'], displayAnswer: 'a seed',
+                explanation: 'The passage says Sam planted a seed in a small pot, then watered it each morning.'
+            };
+            return 'Reading practice:\n\nSam planted a seed in a small pot. Each morning, Sam watered it and placed it by the sunny window. After two weeks, a tiny green shoot appeared. Sam was excited to watch it grow.\n\nQuestion: What did Sam plant?';
+        }
+
+        function startListening() {
+            const passage = 'On Saturday morning, Lina went to the market with her brother. They bought apples and bread, then walked home before the rain started.';
+            currentActivity = {
+                answers: ['apples and bread', 'bread and apples', 'apples', 'bread'],
+                displayAnswer: 'apples and bread',
+                explanation: 'Lina and her brother bought apples and bread at the market.'
+            };
+            const prompt = 'Listening practice: I will read a short passage. Listen, then answer: What did Lina and her brother buy?';
+            if ('speechSynthesis' in window && 'SpeechSynthesisUtterance' in window) {
+                const utterance = new SpeechSynthesisUtterance(passage);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(utterance);
+                return `${prompt}\n\nIf you cannot hear the audio, you can still answer: ${passage}`;
+            }
+            return `${prompt}\n\nAudio playback is not available in this browser. Read the passage instead: ${passage}`;
+        }
+
+        function getTutorResponse(message) {
+            const text = message.trim();
+            const lower = text.toLowerCase();
+
+            if (currentActivity) return answerActivity(text);
+            if (/^(hi|hello|hey|good morning|good afternoon)\b/.test(lower)) {
+                return 'Hello! What would you like to practice today: grammar, vocabulary, reading, or listening? You can also type a sentence and I’ll offer a learning tip.';
+            }
+            if (/grammar|verb|tense|punctuation|sentence|pronoun|adjective|preposition/.test(lower)) return startGrammar();
+            if (/reading/.test(lower)) return startReading();
+            if (/listening|listen/.test(lower)) return startListening();
+            if (/vocab|word|definition|meaning/.test(lower)) {
+                const match = lower.match(/(?:meaning of|define|definition of|what does|vocabulary)\s+([a-z'-]+)/);
+                if (match && vocabulary[match[1]]) {
+                    const [meaning, example] = vocabulary[match[1]];
+                    return `“${match[1]}” means ${meaning}.\nExample: ${example}\n\nTry using “${match[1]}” in your own sentence.`;
+                }
+                if (match) return `I don’t have a saved definition for “${match[1]}” yet. Try one of these words: curious, generous, improve, reliable, exhausted, ancient, confident, or opportunity. Or type “vocabulary quiz” to practice.`;
+                currentActivity = {
+                    answers: ['curious'], displayAnswer: 'curious',
+                    explanation: '“Curious” means wanting to learn or know more. For example: “The curious student asked a question.”'
+                };
+                return 'Vocabulary quiz: Which word means “wanting to learn or know more”?\n\nReply with the word.';
+            }
+            if (/^(thanks|thank you)\b/.test(lower)) return 'You’re welcome! Keep practicing a little each day. What would you like to work on next?';
+            if (/help|practice|exercise|quiz/.test(lower)) return 'I can give you a grammar question, a vocabulary quiz, a short reading comprehension activity, or a listening exercise. Choose one of the buttons below, or type the activity you want.';
+            if (/\b(is|are|was|were|has|have|he|she|they|i)\b/.test(lower) && text.split(/\s+/).length >= 3) {
+                return 'Nice practice! A useful check is to make the subject and verb agree (for example, “She is” but “They are”). Would you like a grammar exercise?';
+            }
+            return 'Thanks for your message! I’m a simple English practice tutor with built-in grammar, vocabulary, reading, and listening activities. Ask for a word’s meaning (for example, “What does curious mean?”), or choose a practice button below.';
+        }
+
+        function submitMessage(message) {
+            const text = message.trim();
+            if (!text || sendBtn.disabled) return;
+            addMessage('user', text);
+            userInput.value = '';
+            sendBtn.disabled = true;
+            userInput.disabled = true;
+            showTyping();
+
+            window.setTimeout(() => {
+                const typing = document.getElementById('typingIndicator');
+                if (typing) typing.remove();
+                addMessage('bot', getTutorResponse(text));
+                sendBtn.disabled = false;
+                userInput.disabled = false;
+                userInput.focus();
+            }, 350);
+        }
+
+        chatForm.addEventListener('submit', event => {
+            event.preventDefault();
+            submitMessage(userInput.value);
+        });
+
+        document.querySelectorAll('.quick-btn').forEach(button => {
+            button.addEventListener('click', () => submitMessage(button.dataset.prompt));
+        });
+
+        addMessage('bot', 'Hello! I’m ELSD, your English practice tutor. I can help with grammar, vocabulary, reading, and listening. Choose an activity below or type a question to get started.');
+        userInput.focus();
     </script>
 </body>
 </html>
