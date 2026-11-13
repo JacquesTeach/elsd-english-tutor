@@ -1,7 +1,7 @@
   {
     method: "POST",
     headers; {
-      "Content-Type": "application/json",
+      "Content-Type"; "application/json",
       "Authorization": `Bearer ${env.OPENAI_API_KEY}`
     },
     body: JSON.stringify({
