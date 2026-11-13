@@ -1,19 +1,13 @@
 const MAX_MESSAGE_LENGTH = 4000;
 const MAX_OUTPUT_TOKENS = 700;
-
 const SYSTEM_INSTRUCTION = `
 You are ELSD, a friendly and patient English-language tutor.
-
 Help learners practice grammar, vocabulary, reading, writing, speaking, and listening.
-
 Adapt explanations to the learner's level, use clear examples, and encourage them.
-
 When useful, ask one short follow-up question or provide a brief exercise.
 `;
-
 export default {
   async fetch(request, env) {
-
     // CORS support
     if (request.method === "OPTIONS") {
       return new Response(null, {
@@ -25,7 +19,6 @@ export default {
         }
       });
     }
-
     // Only allow POST
     if (request.method !== "POST") {
       return new Response(
@@ -40,16 +33,12 @@ export default {
         }
       );
     }
-
     try {
-
       const body = await request.json();
-
       const message =
         typeof body.message === "string"
           ? body.message.trim()
           : "";
-
       if (!message) {
         return new Response(
           JSON.stringify({
@@ -63,7 +52,6 @@ export default {
           }
         );
       }
-
       if (message.length > MAX_MESSAGE_LENGTH) {
         return new Response(
           JSON.stringify({
@@ -77,7 +65,6 @@ export default {
           }
         );
       }
-
       const openaiResponse = await fetch(
         "https://api.openai.com/v1/chat/completions",
         {
@@ -102,14 +89,10 @@ export default {
           })
         }
       );
-
       if (!openaiResponse.ok) {
-
         const errorText =
           await openaiResponse.text();
-
         console.error(errorText);
-
         return new Response(
           JSON.stringify({
             error: "OpenAI request failed."
@@ -122,14 +105,11 @@ export default {
           }
         );
       }
-
       const result =
         await openaiResponse.json();
-
       const reply =
         result.choices?.[0]?.message?.content ||
         "No response returned.";
-
       return new Response(
         JSON.stringify({
           reply
@@ -145,9 +125,7 @@ export default {
       );
 
     } catch (error) {
-
       console.error(error);
-
       return new Response(
         JSON.stringify({
           error: "Server error."
