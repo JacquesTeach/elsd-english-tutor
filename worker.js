@@ -22,3 +22,4 @@ const openaiResponse = await fetch(
   }),
   signal: controller.signal
 }
+)
