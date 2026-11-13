@@ -1,6 +1,6 @@
   {
     method: "POST",
-    headers: {
+    headers; {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${env.OPENAI_API_KEY}`
     },
