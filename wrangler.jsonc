@@ -1,5 +1,7 @@
 {
-  "name": "esld-api",
-  "main": "worker.js",
-  "compatibility_date": "2026-11-13"
+  // ...
+  "vars": {
+    "ALLOWED_ORIGIN": "https://jacquesteach.github.io"
+  },
+  // ...
 }
