@@ -1,5 +1,4 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
   "name": "elsd-english-tutor",
   "main": "worker.js",
   "compatibility_date": "2026-11-13",
