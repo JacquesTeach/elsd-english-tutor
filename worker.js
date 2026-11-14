@@ -8,40 +8,30 @@ When useful, ask one short follow-up question or provide a brief exercise.
 `;
 export default {
   async fetch(request, env) {
+    const allowedOrigins = (env.ALLOWED_ORIGIN || "")
+      .split(",")
+      .map(o => o.trim())
+      .filter(Boolean);
+    const origin = request.headers.get("Origin") || "";
+    const allowedOrigin = allowedOrigins.includes(origin) ? origin : null;
     if (request.method === "OPTIONS") {
       return new Response(null, {
         status: 204,
         headers: {
-          "Access-Control-Allow-Origin": env.ALLOWED_ORIGIN,
+          "Access-Control-Allow-Origin": allowedOrigin || "*",
           "Access-Control-Allow-Methods": "POST, OPTIONS",
           "Access-Control-Allow-Headers": "Content-Type"
         }
       });
     }
     if (request.method !== "POST") {
-      return new Response(JSON.stringify({ error: "Method not allowed." }), {
-        status: 405,
-        headers: { "Content-Type": "application/json" }
-      });
+      return new Response("Method not allowed", { status: 405 });
     }
     try {
       const body = await request.json();
-      const message = typeof body.message === "string" ? body.message.trim() : "";
-      if (!message) {
-        return new Response(JSON.stringify({ error: "Please enter a message." }), {
-          status: 400,
-          headers: { "Content-Type": "application/json" }
-        });
-      }
-      if (message.length > MAX_MESSAGE_LENGTH) {
-        return new Response(JSON.stringify({
-          error: `Message must be ${MAX_MESSAGE_LENGTH} characters or fewer.`
-        }), {
-          status: 400,
-          headers: { "Content-Type": "application/json" }
-        });
-      }
-      const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+      const prompt = body.message || "";
+
+      const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -50,34 +40,35 @@ export default {
         body: JSON.stringify({
           model: "gpt-4o-mini",
           messages: [
-            { role: "system", content: SYSTEM_INSTRUCTION },
-            { role: "user", content: message }
-          ],
-          max_tokens: MAX_OUTPUT_TOKENS
+            { role: "system", content: "You are an English tutor." },
+            { role: "user", content: prompt }
+          ]
         })
       });
-      if (!openaiResponse.ok) {
-        const errorText = await openaiResponse.text();
-        console.error(errorText);
-        return new Response(JSON.stringify({ error: "OpenAI request failed." }), {
-          status: 502,
-          headers: { "Content-Type": "application/json" }
+      const openaiData = await openaiRes.json();
+      if (!openaiRes.ok) {
+        return new Response(JSON.stringify({ error: openaiData.error?.message || "OpenAI request failed" }), {
+          status: 500,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": allowedOrigin || "*"
+          }
         });
       }
-      const result = await openaiResponse.json();
-      const reply = result.choices?.[0]?.message?.content || "No response returned.";
+      const reply = openaiData.choices?.[0]?.message?.content || "No response.";
       return new Response(JSON.stringify({ reply }), {
-        status: 200,
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": env.ALLOWED_ORIGIN
+          "Access-Control-Allow-Origin": allowedOrigin || "*"
         }
       });
-    } catch (error) {
-      console.error(error);
-      return new Response(JSON.stringify({ error: "Server error." }), {
+    } catch (err) {
+      return new Response(JSON.stringify({ error: "Invalid request or server error" }), {
         status: 500,
-        headers: { "Content-Type": "application/json" }
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": allowedOrigin || "*"
+        }
       });
     }
   }
